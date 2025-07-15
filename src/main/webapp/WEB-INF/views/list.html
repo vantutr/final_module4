@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Sản phẩm Đấu giá</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-4">
+    <h1 class="text-center">Danh sách sản phẩm</h1>
+    <a th:href="@{/create}" class="btn btn-success mb-3">Thêm sản phẩm</a>
+
+    <div class="card mb-4">
+        <div class="card-header">Tìm kiếm sản phẩm</div>
+        <div class="card-body">
+            <form th:action="@{/}" method="get" class="row g-3 align-items-end">
+                <div class="col-md-4"><label for="name" class="form-label">Tên sản phẩm</label><input type="text" id="name" name="name" th:value="${name}" class="form-control"></div>
+                <div class="col-md-2"><label for="priceFrom" class="form-label">Giá từ</label><input type="number" id="priceFrom" name="priceFrom" th:value="${priceFrom}" class="form-control"></div>
+                <div class="col-md-2"><label for="priceTo" class="form-label">Giá đến</label><input type="number" id="priceTo" name="priceTo" th:value="${priceTo}" class="form-control"></div>
+                <div class="col-md-4"><label for="typeId" class="form-label">Loại sản phẩm</label><select id="typeId" name="typeId" class="form-select"><option value="">--Tất cả--</option><option th:each="type : ${productTypes}" th:value="${type.id}" th:text="${type.name}" th:selected="${type.id == typeId}"></option></select></div>
+                <div class="col-12 mt-3"><button type="submit" class="btn btn-primary">Tìm kiếm</button><a th:href="@{/}" class="btn btn-secondary ms-2">Xóa thông tin</a></div>
+            </form>
+        </div>
+    </div>
+
+    <div th:if="${message}" class="alert alert-success" role="alert" th:text="${message}"></div>
+
+    <form th:action="@{/delete}" method="post" onsubmit="return confirm('Bạn có muốn xóa tất cả sản phẩm đã chọn?');">
+        <button type="submit" class="btn btn-danger mb-3">Xóa</button>
+        <table class="table table-bordered table-striped table-hover">
+            <thead>
+            <tr class="text-center table-dark"><th>STT</th><th>Chọn</th><th>Tên sản phẩm</th><th>Giá khởi điểm</th><th>Loại sản phẩm</th><th>Tình Trạng</th><th>Sửa</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="product, iterStat : ${products.content}">
+                <td class="text-center" th:text="${iterStat.count + products.number * products.size}"></td>
+                <td class="text-center"><input type="checkbox" name="selectedIds" th:value="${product.id}" class="form-check-input"></td>
+                <td th:text="${product.name}"></td>
+                <td th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+                <td th:text="${product.productType.name}"></td>
+                <td th:text="${product.status}"></td>
+                <td class="text-center"><a th:href="@{/edit/{id}(id=${product.id})}">✏️</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </form>
+
+    <div th:if="${products.totalPages > 1}" class="d-flex justify-content-center">
+        <nav><ul class="pagination">
+            <li class="page-item" th:classappend="${!products.hasPrevious()} ? 'disabled'"><a class="page-link" th:href="@{/(page=${products.number - 1}, name=${name}, typeId=${typeId}, priceFrom=${priceFrom}, priceTo=${priceTo})}">Trước</a></li>
+            <li class="page-item" th:each="i : ${#numbers.sequence(0, products.totalPages - 1)}" th:classappend="${i == products.number} ? 'active'"><a class="page-link" th:href="@{/(page=${i}, name=${name}, typeId=${typeId}, priceFrom=${priceFrom}, priceTo=${priceTo})}" th:text="${i + 1}"></a></li>
+            <li class="page-item" th:classappend="${!products.hasNext()} ? 'disabled'"><a class="page-link" th:href="@{/(page=${products.number + 1}, name=${name}, typeId=${typeId}, priceFrom=${priceFrom}, priceTo=${priceTo})}">Sau</a></li>
+        </ul></nav>
+    </div>
+</div>
+</body>
+</html>
